@@ -1,0 +1,13 @@
+{
+  "name": "conference-room-share-sys",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:be": "pnpm -F backend start:dev",
+    "dev:fe": "pnpm -F frontend dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
