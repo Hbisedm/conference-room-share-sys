@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "bootstrap": "pnpm i",
     "dev:be": "pnpm -F backend start:dev",
     "dev:fe": "pnpm -F frontend dev"
   },
