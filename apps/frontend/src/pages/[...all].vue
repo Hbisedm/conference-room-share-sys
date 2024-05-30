@@ -1,5 +1,5 @@
 <template>
   <div>
-    Not Found
+    Not Found 404
   </div>
 </template>
