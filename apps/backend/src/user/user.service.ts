@@ -15,10 +15,9 @@ import { Permission } from './entities/permission.entity';
 import { md5 } from 'src/utils';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './vo/login-user.vo';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserListVo } from './vo/user-list.vo';
 
 @Injectable()
 export class UserService {
@@ -216,7 +215,6 @@ export class UserService {
   }
 
   async freezeUserById(id: number) {
-    console.log('user id: ', id);
     const foundUser = await this.userRepository.findOneBy({
       id,
     });
@@ -269,10 +267,12 @@ export class UserService {
       where: condition,
     });
 
-    return {
-      users,
-      totalCount,
-    };
+    const vo = new UserListVo();
+
+    vo.users = users;
+    vo.totalCount = totalCount;
+
+    return vo;
   }
 
   async initData() {

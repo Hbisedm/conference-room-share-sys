@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { message, Button, Form, FormItem, Input } from 'ant-design-vue'
+import { message, Button, Form, UploadDragger,  FormItem,  Input } from 'ant-design-vue'
+import { InboxOutlined } from '@ant-design/icons-vue';
 import { getUserInfo, updateUserInfo, updateUserInfoCaptcha } from '~/api';
+
+import { useEnv } from '~/composables/useEnv'
+const { VITE_BASE_URL } = useEnv()
 
 interface UserInfo {
   headPic: string
@@ -46,6 +50,17 @@ onMounted(() => {
     query();
 })
 
+function handleChangeFile(info) {
+   const { status } = info.file;
+        if (status === 'done') {
+            console.log(info.file.response);
+            message.success(`${info.file.name} 文件上传成功`);
+        } else if (status === 'error') {
+            message.error(`${info.file.name} 文件上传失败`);
+        }
+
+}
+
 </script>
 
 
@@ -56,7 +71,19 @@ onMounted(() => {
     </h1>
     <Form v-bind="layout1" :model="formValue" autocomplete="off" @finish="onFinish">
       <FormItem label="头像" name="headPic" :rules="[{ required: true, message: '请选择头像' }]">
-        <Input v-model:value="formValue.headPic" />
+        <img class="w-100px h-100px" :src="VITE_BASE_URL + formValue.headPic" alt="头像" />
+        <UploadDragger
+          name="file"
+          :action="VITE_BASE_URL + 'user/upload'"
+          @change="handleChangeFile"
+        >
+        <p class="ant-upload-drag-icon">
+      <inbox-outlined></inbox-outlined>
+    </p>
+    <p class="ant-upload-text">Click or drag file to this area to upload</p>
+
+      </UploadDragger>
+
       </FormItem>
       <FormItem label="昵称" name="nickName" :rules="[{ required: true, message: '请输入你的昵称' }]">
         <Input v-model:value="formValue.nickName" />

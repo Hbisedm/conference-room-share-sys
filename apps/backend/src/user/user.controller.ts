@@ -8,7 +8,11 @@ import {
   UnauthorizedException,
   DefaultValuePipe,
   HttpStatus,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import * as path from 'path';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { RedisService } from 'src/redis/redis.service';
@@ -30,6 +34,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RefreshTokenVo } from './vo/refresh-token.vo';
+import { UserListVo } from './vo/user-list.vo';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storage } from '../my-file-storage';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -47,6 +54,29 @@ export class UserController {
 
   @Inject(ConfigService)
   private ConfigService: ConfigService;
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: 'uploads',
+      storage,
+      limits: {
+        fileSize: 1024 * 1024 * 2, // 5MB
+      },
+      fileFilter(req, file, callback) {
+        const extname = path.extname(file.originalname);
+        if (['.png', '.jpg', '.gif'].includes(extname)) {
+          callback(null, true);
+        } else {
+          callback(new BadRequestException('只能上传图片'), false);
+        }
+      },
+    }),
+  )
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return file.path;
+  }
 
   @ApiBody({ type: RegisterUserDto })
   @ApiResponse({
@@ -193,6 +223,7 @@ export class UserController {
     return vo;
   }
 
+  @ApiBearerAuth()
   @ApiQuery({
     name: 'address',
     description: '邮箱地址',
@@ -275,18 +306,58 @@ export class UserController {
   @RequireLogin()
   async update(
     @UserInfo('userId') userId: number,
-    @Body() upateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
-    return await this.userService.update(userId, upateUserDto);
+    return await this.userService.update(userId, updateUserDto);
   }
 
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'id',
+    description: '用户id',
+    type: Number,
+  })
+  @ApiResponse({
+    type: String,
+    description: 'success',
+  })
+  @RequireLogin()
   @Get('freeze')
   async freeze(@Query('userId') userId: number) {
-    console.log('user id:', userId);
     await this.userService.freezeUserById(userId);
     return 'success';
   }
 
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'pageNo',
+    description: '页码',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    description: '每页数量',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'username',
+    description: '用户名',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'nickName',
+    description: '昵称',
+    type: String,
+  })
+  @ApiQuery({
+    name: 'email',
+    description: '邮箱',
+    type: String,
+  })
+  @ApiResponse({
+    type: UserListVo,
+    description: '用户列表',
+  })
   @RequireLogin()
   @Get('list')
   async list(
@@ -311,14 +382,14 @@ export class UserController {
     );
   }
 
-  packVoByLoginUserVo(vo: Partial<LoginUserVo>) {
+  private packVoByLoginUserVo(vo: Partial<LoginUserVo>) {
     const { access_token, refresh_token } = this.packVoByUserInfo(vo.userInfo);
     vo.accessToken = access_token;
     vo.refreshToken = refresh_token;
     return vo;
   }
 
-  packVoByUserInfo(user: Partial<UserInfoVo>) {
+  private packVoByUserInfo(user: Partial<UserInfoVo>) {
     const access_token = this.jwtService.sign(
       {
         userId: user.id,
@@ -329,7 +400,7 @@ export class UserController {
       },
       {
         expiresIn:
-          this.ConfigService.get('jwt_access_token_expires_time') || '30m',
+          this.ConfigService.get('jwt_access_token_expires_time') || '600m',
       },
     );
 

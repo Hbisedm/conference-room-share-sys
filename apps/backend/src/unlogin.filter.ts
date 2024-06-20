@@ -13,7 +13,7 @@ export class UnLoginException {
   }
 }
 
-@Catch()
+@Catch(UnLoginException)
 export class UnLoginFilter implements ExceptionFilter {
   catch(exception: UnLoginException, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();

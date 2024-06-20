@@ -6,7 +6,9 @@
   "scripts": {
     "bootstrap": "pnpm i",
     "dev:be": "pnpm -F backend start:dev",
-    "dev:fe": "pnpm -F frontend dev"
+    "dev:fe": "pnpm -F frontend dev",
+    "install:be": "pnpm -F backend add ",
+    "install:fe": "pnpm -F frontend add "
   },
   "keywords": [],
   "author": "",

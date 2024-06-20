@@ -8,7 +8,7 @@ import {
 import { Observable } from 'rxjs';
 import { Permission } from './user/entities/permission.entity';
 import { Reflector } from '@nestjs/core';
-import { JwtService, JwtModule } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UnLoginException } from './unlogin.filter';
 
