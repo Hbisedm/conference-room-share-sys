@@ -63,7 +63,7 @@ export class UserService {
 
     try {
       await this.userRepository.save(newUser);
-      return '注册成功 ';
+      return '注册成功';
     } catch (e) {
       this.logger.error(e, UserService);
       return '注册失败';
@@ -133,6 +133,7 @@ export class UserService {
     return {
       id: user.id,
       username: user.username,
+      email: user.email,
       isAdmin: user.isAdmin,
       roles: user.roles.map((item) => item.name),
       permissions: user.roles.reduce((arr, item) => {
@@ -146,23 +147,31 @@ export class UserService {
     };
   }
 
-  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
+  async updatePassword(updatePasswordDto: UpdateUserPasswordDto) {
     const captcha = await this.redisService.get(
-      `update_password_captcha_${passwordDto.email}`,
+      `update_password_captcha_${updatePasswordDto.email}`,
     );
 
     if (!captcha) {
       throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
     }
 
-    if (passwordDto.captcha !== captcha) {
+    if (updatePasswordDto.captcha !== captcha) {
       throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
     }
     const foundUser = await this.userRepository.findOneBy({
-      id: userId,
+      username: updatePasswordDto.username,
     });
 
-    foundUser.password = md5(passwordDto.password);
+    if (!foundUser) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+
+    if (foundUser.email !== updatePasswordDto.email) {
+      throw new HttpException('邮箱不正确', HttpStatus.BAD_REQUEST);
+    }
+
+    foundUser.password = md5(updatePasswordDto.password);
 
     try {
       await this.userRepository.save(foundUser);
@@ -199,10 +208,10 @@ export class UserService {
 
     try {
       await this.userRepository.save(foundUser);
-      return '密码修改成功';
+      return '用户信息修改成功';
     } catch (e) {
       this.logger.error(e, UserService);
-      return '密码修改失败';
+      return '用户信息修改失败';
     }
   }
 

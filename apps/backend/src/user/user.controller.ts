@@ -116,6 +116,7 @@ export class UserController {
 
   @Post('admin/login')
   async adminLogin(@Body() loginUser: LoginUserDto) {
+    console.log('LoginUserDto::', loginUser);
     const vo = await this.userService.login(loginUser, true);
     this.packVoByLoginUserVo(vo);
     return vo;
@@ -192,6 +193,15 @@ export class UserController {
     return vo;
   }
 
+  @ApiQuery({
+    name: 'address',
+    description: '邮箱地址',
+    type: String,
+  })
+  @ApiResponse({
+    type: String,
+    description: '发送成功',
+  })
   @Get('update_password/captcha')
   async updatePasswordCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
@@ -211,7 +221,7 @@ export class UserController {
     return '发送成功';
   }
 
-  @ApiBearerAuth()
+  // @ApiBearerAuth()
   @ApiBody({
     type: UpdateUserPasswordDto,
   })
@@ -220,14 +230,47 @@ export class UserController {
     description: '验证码已失效/不正确',
   })
   @Post(['update_password', 'admin/update_password'])
-  @RequireLogin()
-  async updatePassword(
-    @UserInfo('userId') userId: number,
-    @Body() passwordDto: UpdateUserPasswordDto,
-  ) {
-    return await this.userService.updatePassword(userId, passwordDto);
+  // @RequireLogin()
+  async updatePassword(@Body() passwordDto: UpdateUserPasswordDto) {
+    return await this.userService.updatePassword(passwordDto);
   }
 
+  @ApiBearerAuth()
+  @ApiResponse({
+    type: String,
+    description: '发送成功',
+  })
+  @RequireLogin()
+  @Get('update/captcha')
+  async updateCaptcha(@UserInfo('email') address: string) {
+    const code = Math.random().toString().slice(2, 8);
+    await this.redisService.set(
+      `update_user_captcha_${address}`,
+      code,
+      10 * 60,
+    );
+
+    await this.emailService.sendMail({
+      to: address,
+      subject: '更改用户信息验证码',
+      html: `<p>你的验证码是${code}</p>`,
+    });
+    return '发送成功';
+  }
+
+  @ApiBearerAuth()
+  @ApiBody({
+    type: UpdateUserDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: '验证码已失效/不正确',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: '更新成功',
+    type: String,
+  })
   @Post(['update', 'admin/update'])
   @RequireLogin()
   async update(
@@ -244,6 +287,7 @@ export class UserController {
     return 'success';
   }
 
+  @RequireLogin()
   @Get('list')
   async list(
     @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo'))
@@ -280,6 +324,7 @@ export class UserController {
         userId: user.id,
         username: user.username,
         roles: user.roles,
+        email: user.email,
         permissions: user.permissions,
       },
       {

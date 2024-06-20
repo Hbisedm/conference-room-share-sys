@@ -14,6 +14,7 @@ import { UnLoginException } from './unlogin.filter';
 
 interface JwtUserData {
   userId: number;
+  email: string;
   username: string;
   roles: string[];
   permissions: Permission[];
@@ -63,6 +64,7 @@ export class LoginGuard implements CanActivate {
         username: data.username,
         roles: data.roles,
         permissions: data.permissions,
+        email: data.email,
       };
       return true;
     } catch (e) {

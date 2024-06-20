@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Button, Form, FormItem, Input, InputPassword } from 'ant-design-vue'
-
 import { useIndex } from './useIndex'
+import { useGotoPage } from '~/composables/useGotoPage'
 
 const { userInfo, onFinish } = useIndex()
 
@@ -13,6 +13,7 @@ const layout2 = {
   labelCol: { span: 0 },
   wrapperCol: { span: 24 },
 }
+const { pushRegisterPage, pushUpdatePasswordPage } = useGotoPage()
 </script>
 
 <template>
@@ -24,13 +25,13 @@ const layout2 = {
       <FormItem label="用户名" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
         <Input v-model:value="userInfo.username" />
       </FormItem>
-      <FormItem label="密码" name="password">
-        <InputPassword v-model:value="userInfo.password" :rules="[{ required: true, message: 'Please input your username!' }]" />
+      <FormItem label="密码" name="password" :rules="[{ required: true, message: 'Please input your password!' }]">
+        <InputPassword v-model:value="userInfo.password" />
       </FormItem>
       <FormItem v-bind="layout2">
         <div class="flex justify-between">
-          <a href="">创建账号</a>
-          <a href="">忘记密码</a>
+          <a @click="pushRegisterPage">创建账号</a>
+          <a @click="pushUpdatePasswordPage">忘记密码</a>
         </div>
       </FormItem>
       <FormItem v-bind="layout2">
@@ -41,3 +42,8 @@ const layout2 = {
     </Form>
   </div>
 </template>
+
+<route lang="yaml">
+meta:
+  layout: no
+</route>

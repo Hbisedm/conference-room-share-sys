@@ -1,4 +1,4 @@
-import type { AxiosError, AxiosInstance, AxiosResponse } from 'axios'
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
 import { Modal, message } from 'ant-design-vue'
 
@@ -26,6 +26,15 @@ service.interceptors.request.use((config: any) => {
   return config
 })
 
+interface PendingTask {
+  config: AxiosRequestConfig
+  resolve: Function
+}
+
+let refreshing = false;
+const queue: PendingTask[] = [];
+
+
 service.interceptors.response.use(async (response: AxiosResponse<Service.Result, any>) => {
   const data = response.data
   const config = response.config as any
@@ -38,25 +47,64 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
   }
   // unLogin tip
   else if (data.code === 400) {
-    Modal.confirm({
-      title: '提示',
-      content: data.message,
-      onOk() {
-        message.info('to login')
-      },
-      onCancel() {
-        message.info('cancel')
-      },
-    })
+    message.error(data.message)
     return Promise.reject(data)
   }
   else {
     message.error(data.message)
     return Promise.reject(data)
   }
-}, (err) => {
+}, async (err) => {
+  if(!err.response) {
+    return Promise.reject(err)
+  }
+  let {data, config} = err.response
+  if(refreshing) {
+    return new Promise(resolve => {
+      queue.push({
+        config,
+        resolve
+      })
+    })
+  }
+
+  if (data.code === 401 && !config.url.includes('/user/refresh')) {
+
+    refreshing = true;
+
+    const res = await refreshToken();
+
+    refreshing = false;
+
+    if(res.status === 200) {
+
+        queue.forEach(({config, resolve}) => {
+            resolve(service(config))
+        })
+
+        return service(config);
+    } else {
+        message.error(res.data);
+
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
+    }
+  }
   return Promise.reject(err.response)
 })
+
+
+async function refreshToken() {
+  const res = await service.get('/user/refresh', {
+      params: {
+        refresh_token: localStorage.getItem('refresh_token')
+      }
+  });
+  localStorage.setItem('access_token', res.data.access_token || '');
+  localStorage.setItem('refresh_token', res.data.refresh_token || '');
+  return res;
+}
 
 interface IRequestParamConfig {
   url: string

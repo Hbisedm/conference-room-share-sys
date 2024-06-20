@@ -3,7 +3,9 @@
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
+import VueJsx from '@vitejs/plugin-vue-jsx'
 import Pages from 'vite-plugin-pages'
+import Layouts from 'vite-plugin-vue-layouts'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
@@ -28,9 +30,17 @@ export default defineConfig({
         }),
       },
     }),
+    VueJsx(),
 
     // https://github.com/hannoeru/vite-plugin-pages
     Pages(),
+
+    // https://github.com/JohnCampionJr/vite-plugin-vue-layouts
+    Layouts({
+      layoutsDirs: 'src/layout', // 布局文件存放目录
+      defaultLayout: 'default', // 默认布局，对应 src/layout/index.vue
+    },
+    ),
 
     // https://github.com/antfu/unplugin-auto-import
     AutoImport({
