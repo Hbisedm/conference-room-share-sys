@@ -61,7 +61,7 @@ export class UserController {
       dest: 'uploads',
       storage,
       limits: {
-        fileSize: 1024 * 1024 * 2, // 5MB
+        fileSize: 1024 * 1024 * 2, // 2MB
       },
       fileFilter(req, file, callback) {
         const extname = path.extname(file.originalname);
@@ -400,7 +400,7 @@ export class UserController {
       },
       {
         expiresIn:
-          this.ConfigService.get('jwt_access_token_expires_time') || '600m',
+          this.ConfigService.get('jwt_access_token_expires_time') || '30m',
       },
     );
 

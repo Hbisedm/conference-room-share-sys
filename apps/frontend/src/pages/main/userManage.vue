@@ -2,30 +2,29 @@
  <div id="userManage-container">
         <div className="userManage-form">
             <Form
-                @finish="searchUser"
                 name="search"
                 layout='inline'
                 :colon="false"
             >
-                <Form.Item label="用户名" name="username">
-                    <Input />
-                </Form.Item>
+                <FormItem label="用户名" name="username">
+                    <Input v-model:value="formData.username"/>
+                </FormItem>
 
-                <Form.Item label="昵称" name="nickName">
-                    <Input />
-                </Form.Item>
+                <FormItem label="昵称" name="nickName">
+                    <Input v-model:value="formData.nickName" />
+                </FormItem>
 
-                <Form.Item label="邮箱" name="email" :rules="[
+                <FormItem label="邮箱" name="email" :rules="[
                     { type: 'email', message: '请输入合法邮箱地址!'}
                 ]">
-                    <Input/>
-                </Form.Item>
+                    <Input v-model:value="formData.email"/>
+                </FormItem>
 
-                <Form.Item label=" ">
-                    <Button type="primary" htmlType="submit">
+                <FormItem>
+                    <Button type="primary" @click="() => searchUser(formData)">
                         搜索用户
                     </Button>
-                </Form.Item>
+                </FormItem>
             </Form>
         </div>
         <div className="userManage-table">
@@ -34,7 +33,7 @@
             }">
             <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'headPic'">
-                  <Image v-if="record.headPic" :src="`http://localhost:3005/${record.headPic}`" width="50"></Image>
+                  <Image v-if="record.headPic" :src="`${VITE_BASE_URL}${record.headPic}`" width="50" height="100px"></Image>
                   <div v-else>/</div>
                 </template>
                 <template v-else-if="column.key === 'isFrozen'">
@@ -50,10 +49,17 @@
 </template>
 
 <script setup lang="tsx">
-import { Button, Form, Input, Table, Image, message  } from "ant-design-vue";
+import { Button, Form, FormItem, Input, Table, Image, message  } from "ant-design-vue";
 import { ColumnsType } from "ant-design-vue/es/table";
-import { userListApi, freezeUserApi }  from '~/api/userManage.ts'
+import { userListApi, freezeUserApi }  from '~/api/userManage'
 
+const { VITE_BASE_URL } = useEnv()
+
+const formData = ref({
+    username: '',
+    nickName: '',
+    email: ''
+})
 
 const columns: ColumnsType<ApiUser.UserSearchResult> = [
     {
@@ -63,11 +69,6 @@ const columns: ColumnsType<ApiUser.UserSearchResult> = [
     {
         title: '头像',
         key: 'headPic',
-
-        // render: value => return value ? <img
-        //             width={50}
-        //             src={`http://localhost:3005/${value}`}
-        //     /> : '';
     },
     {
         title: '昵称',
@@ -93,7 +94,9 @@ const columns: ColumnsType<ApiUser.UserSearchResult> = [
 
 const dataSource = ref<ApiUser.UserSearchResult[]>([])
 
+
 async function searchUser({ username = '', nickName = '', email ='' }){
+  console.log('搜索用户', username, nickName, email)
 
   const {data} = await userListApi({
     username,
@@ -111,7 +114,9 @@ async function handleFreezeUser(userId: number){
   console.log('冻结用户', userId);
   await freezeUserApi({userId})
   message.success('冻结成功');
-  await searchUser({})
+  await searchUser({
+    ...formData.value
+  })
 
 }
 
@@ -127,3 +132,8 @@ onBeforeMount(() => {
     padding: 20px;
 }
 </style>
+
+<route lang="yaml">
+meta:
+  layout: main
+</route>

@@ -2,7 +2,7 @@ export  function useGotoPage() {
   const router = useRouter()
 
   function pushHomePage() {
-    router.push('/')
+    router.push('/main/userManage')
   }
 
   function pushRegisterPage() {

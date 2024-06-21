@@ -44,9 +44,10 @@ export const useUserStore = defineStore('USER', () => {
 
   return {
     userInfo,
+    accessToken,
+    refreshToken,
     setUserInfo,
     getUserInfo,
-    accessToken,
     getAccessToken,
     setAccessToken,
     hasAccessToken,

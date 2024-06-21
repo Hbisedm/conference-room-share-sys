@@ -50,15 +50,14 @@ onMounted(() => {
     query();
 })
 
-function handleChangeFile(info) {
+function handleChangeFile(info: any) {
    const { status } = info.file;
         if (status === 'done') {
-            console.log(info.file.response);
+            formValue.value.headPic = info.file.response.data
             message.success(`${info.file.name} 文件上传成功`);
         } else if (status === 'error') {
             message.error(`${info.file.name} 文件上传失败`);
         }
-
 }
 
 </script>
@@ -71,7 +70,7 @@ function handleChangeFile(info) {
     </h1>
     <Form v-bind="layout1" :model="formValue" autocomplete="off" @finish="onFinish">
       <FormItem label="头像" name="headPic" :rules="[{ required: true, message: '请选择头像' }]">
-        <img class="w-100px h-100px" :src="VITE_BASE_URL + formValue.headPic" alt="头像" />
+        <img class="w-100px h-100px mb-10px" :src="VITE_BASE_URL + formValue.headPic" alt="头像" />
         <UploadDragger
           name="file"
           :action="VITE_BASE_URL + 'user/upload'"
@@ -103,8 +102,8 @@ function handleChangeFile(info) {
           发送验证码
         </Button>
       </div>
-      <FormItem v-bind="layout1" label=" ">
-        <Button class="w-full" type="primary" html-type="submit">
+      <FormItem v-bind="layout1">
+        <Button class="w-full ml-100px" type="primary" html-type="submit">
           修改
         </Button>
       </FormItem>
@@ -112,7 +111,7 @@ function handleChangeFile(info) {
   </div>
 </template>
 
-
-<style scoped>
-
-</style>
+<route lang="yaml">
+meta:
+  layout: update-info
+</route>

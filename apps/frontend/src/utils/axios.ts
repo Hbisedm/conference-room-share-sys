@@ -1,6 +1,6 @@
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
-import { Modal, message } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 
 import { useEnv } from '~/composables/useEnv'
 import { useUserStore } from '~/store'
@@ -17,7 +17,6 @@ service.interceptors.request.use((config: any) => {
     config.baseURL = config.url
   }
   else {
-    // 这里设置accessToken: config!.headers!.Authorization = token
     const userStore = useUserStore()
     const accessToken = userStore.getAccessToken()
     if (accessToken)
@@ -55,6 +54,7 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
     return Promise.reject(data)
   }
 }, async (err) => {
+  console.log('err', err)
   if(!err.response) {
     return Promise.reject(err)
   }
@@ -72,11 +72,11 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
 
     refreshing = true;
 
-    const res = await refreshToken();
+    const res: {data: any, code: string, msg: string} = (await refreshToken()) as any;
 
     refreshing = false;
 
-    if(res.status === 200) {
+    if(String(res.code) === "000000") {
 
         queue.forEach(({config, resolve}) => {
             resolve(service(config))
@@ -90,19 +90,24 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
             window.location.href = '/login';
         }, 1500);
     }
+  }else {
+    message.error(data.data)
   }
   return Promise.reject(err.response)
 })
 
 
 async function refreshToken() {
+  const userStore = useUserStore()
+  const refreshToken = userStore.getRefreshToken()
   const res = await service.get('/user/refresh', {
       params: {
-        refresh_token: localStorage.getItem('refresh_token')
+        refreshToken
       }
   });
-  localStorage.setItem('access_token', res.data.access_token || '');
-  localStorage.setItem('refresh_token', res.data.refresh_token || '');
+  const {access_token, refresh_token} = res.data
+  userStore.setAccessToken(access_token || '')
+  userStore.setRefreshToken(refresh_token || '')
   return res;
 }
 
