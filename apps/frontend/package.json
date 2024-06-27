@@ -18,6 +18,8 @@
     "@vueuse/core": "^10.4.1",
     "ant-design-vue": "4.x",
     "axios": "^1.2.0",
+    "dayjs": "^1.11.11",
+    "echarts": "^5.5.1",
     "pinia": "^2.0.27",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"

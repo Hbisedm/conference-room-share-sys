@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Button, Form, FormItem, Input, InputPassword } from 'ant-design-vue'
+import { Button, Form, FormItem, Input, InputPassword, Switch } from 'ant-design-vue'
 import { useIndex } from './useIndex'
 import { useGotoPage } from '~/composables/useGotoPage'
 
-const { userInfo, onFinish } = useIndex()
+const { userInfo, onFinish, adminLoginChecked } = useIndex()
 
 const layout1 = {
   labelCol: { span: 4 },
@@ -31,6 +31,7 @@ const { pushRegisterPage, pushUpdatePasswordPage } = useGotoPage()
       <FormItem v-bind="layout2">
         <div class="flex justify-between">
           <a @click="pushRegisterPage">创建账号</a>
+          <Switch v-model:checked="adminLoginChecked"   checked-children="管理员登录" un-checked-children="用户登录"></Switch>
           <a @click="pushUpdatePasswordPage">忘记密码</a>
         </div>
       </FormItem>

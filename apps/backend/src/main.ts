@@ -8,6 +8,8 @@ import { CustomExceptionFilter } from './custom-exception.filter';
 import { FormatResponseInterceptor } from './format-response.interceptor';
 import { InvokeRecordInterceptor } from './invoke-record.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { Cors } from './lib/Cors';
+
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -35,12 +37,12 @@ async function bootstrap() {
   app.useGlobalInterceptors(new InvokeRecordInterceptor());
   app.useGlobalFilters(new CustomExceptionFilter());
 
-  app.enableCors({
-    origin: '*',
-    // allowedHeaders: ['Authorization', 'content-type'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  });
-  // new Cors(app);
+  // app.enableCors({
+  //   origin: '*',
+  //   // allowedHeaders: ['Authorization', 'content-type'],
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  // });
+  new Cors(app);
 
   const config = new DocumentBuilder()
     .setTitle('会议室预订系统')

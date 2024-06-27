@@ -1,6 +1,13 @@
+import * as dayjs from 'dayjs';
+import * as timezone from 'dayjs/plugin/timezone';
+import * as utc from 'dayjs/plugin/utc';
+import * as crypto from 'crypto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import { ParseIntPipe } from '@nestjs/common/pipes';
-import * as crypto from 'crypto';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Shanghai');
 
 export function md5(str) {
   const hash = crypto.createHash('md5');
@@ -15,3 +22,13 @@ export function generateParseIntPipe(name) {
     },
   });
 }
+
+/** 一个时区的项目可以用这种 去做日期格式化 */
+export const dateTransformer = {
+  from: (value: Date) => {
+    return dayjs.tz(value).format('YYYY-MM-DD HH:mm:ss');
+  },
+  to: (value: Date) => {
+    return dayjs.tz(value).format('YYYY-MM-DD HH:mm:ss');
+  },
+};

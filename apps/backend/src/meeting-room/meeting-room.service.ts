@@ -71,13 +71,13 @@ export class MeetingRoomService {
   }
 
   async create(meetingRoomDto: CreateMeetingRoomDto) {
-    const room = this.repository.findOneBy({
+    const room = await this.repository.findOneBy({
       name: meetingRoomDto.name,
     });
     if (room) {
       throw new BadRequestException('会议室名称已存在');
     }
-    return await this.repository.insert(meetingRoomDto);
+    return await this.repository.save(meetingRoomDto);
   }
 
   async update(meetingRoomDto: UpdateMeetingRoomDto) {
@@ -112,9 +112,15 @@ export class MeetingRoomService {
   }
 
   async findById(id: number) {
-    return this.repository.findOneBy({
+    const meetingRoom = await this.repository.findOneBy({
       id,
     });
+
+    if (!meetingRoom) {
+      throw new BadRequestException('会议室不存在');
+    }
+
+    return meetingRoom;
   }
 
   async delete(id: number) {

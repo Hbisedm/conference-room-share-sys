@@ -1,5 +1,3 @@
-declare namespace ApiUser {
-
   // #region 分页参数
 
   interface PageParams {
@@ -8,6 +6,10 @@ declare namespace ApiUser {
   }
 
   // #endregion
+
+
+
+declare namespace ApiUser {
 
 
   //#region  登录
@@ -90,12 +92,100 @@ declare namespace ApiUser {
     email: string;
     headPic: string | null;
     createTime: Date;
-}
+  }
 
 
-interface FreezeUserParams {
-  userId: number;
-}
+  interface FreezeUserParams {
+    userId: number;
+  }
 
   // #endregion
+
 }
+
+// #region 会议室管理
+declare namespace Meeting {
+
+
+  interface MeetingRoomParams extends PageParams {
+    name?: string
+    capacity?: string
+    equipment?: string
+  }
+
+  interface MeetingRoomSearchResult {
+    id: number;
+    name: string;
+    location: string;
+    capacity: number;
+    equipment: string;
+    description: string;
+    isBooked: boolean;
+    createTime: string;
+    updateTime: string;
+  }
+
+  type MeetingRoomSearchResponse =  Service.Result<{
+    meetingRooms: Meeting.MeetingRoomSearchResult[],
+    totalCount: number
+  }>
+
+  export interface CreateMeetingRoomParams {
+    capacity: number;
+    description: string;
+    equipment: string;
+    location: string;
+    name: string;
+  }
+
+  export interface UpdateMeetingRoomParams extends CreateMeetingRoomParams {
+    id: number;
+  }
+
+
+
+}
+//#endregion
+
+// #region 预约管理
+declare namespace Booking {
+  export interface SearchParams extends PageParams {
+    bookingTimeRangeEnd?: number;
+    bookingTimeRangeStart?: number;
+    meetingRoomName?: string;
+    meetingRoomPosition?: string;
+    username?: string;
+}
+
+  interface BookingSearchResult {
+    id: number;
+    startTime: string;
+    endTime: string;
+    status: string;
+    note: string;
+    createTime: string;
+    updateTime: string;
+    user: ApiUser.UserSearchResult,
+    room: Meeting.MeetingRoomSearchResult
+  }
+
+  interface BookingAddParams {
+    endTime: number | null;
+    meetingRoomId: number | null;
+    startTime: number | null;
+    note: string;
+  }
+
+  interface BookingAddDisplayParams {
+    name: string;
+    rangeStartDate: string;
+    rangeStartTime: string;
+    rangeEndDate: string;
+    rangeEndTime: string;
+    note: string;
+
+  }
+
+
+}
+// #endregion

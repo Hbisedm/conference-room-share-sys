@@ -7,7 +7,7 @@ export class Cors {
   handle() {
     this.app.enableCors({
       origin: '*',
-      allowedHeaders: ['Authorization', 'content-type'],
+      // allowedHeaders: ['Authorization', 'content-type'],
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
   }

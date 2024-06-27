@@ -5,6 +5,10 @@ export  function useGotoPage() {
     router.push('/main/userManage')
   }
 
+  function pushClientHomePage() {
+    router.push('/client/meetingRoomList')
+  }
+
   function pushRegisterPage() {
     router.push('/login/register')
   }
@@ -23,6 +27,7 @@ export  function useGotoPage() {
 
   return {
     pushHomePage,
+    pushClientHomePage,
     pushRegisterPage,
     replaceLoginPage,
     pushUpdatePasswordPage,

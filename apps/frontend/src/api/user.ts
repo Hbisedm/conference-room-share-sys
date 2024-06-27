@@ -2,6 +2,7 @@ import { $http } from '~/utils'
 
 enum API {
   LOGIN = '/user/login',
+  ADMIN_LOGIN = '/user/admin/login',
   REGISTER_CAPTCHA = '/user/register-captcha',
   REGISTER = '/user/register',
   UPDATE_PASSWORD = '/user/update_password',
@@ -11,10 +12,18 @@ enum API {
   UPDATE_USER_INFO_CAPTCHA = '/user/update/captcha',
 }
 
-/** [POST] 登录 */
+/** [POST] 普通登录 */
 export function loginApi(data: ApiUser.LoginParams) {
   return $http.post<Service.Result<ApiUser.LoginUserVo>>({
     url: API.LOGIN,
+    data,
+  })
+}
+
+/** [POST] 管理员登录 */
+export function adminLoginApi(data: ApiUser.LoginParams) {
+  return $http.post<Service.Result<ApiUser.LoginUserVo>>({
+    url: API.ADMIN_LOGIN,
     data,
   })
 }

@@ -1,5 +1,5 @@
 <template>
- <div id="userManage-container">
+ <div class="p-20px">
         <div className="userManage-form">
             <Form
                 name="search"
@@ -126,12 +126,6 @@ onBeforeMount(() => {
 
 
 </script>
-
-<style scoped>
-#userManage-container {
-    padding: 20px;
-}
-</style>
 
 <route lang="yaml">
 meta:

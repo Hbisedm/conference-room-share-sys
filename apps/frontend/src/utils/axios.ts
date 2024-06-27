@@ -34,7 +34,7 @@ let refreshing = false;
 const queue: PendingTask[] = [];
 
 
-service.interceptors.response.use(async (response: AxiosResponse<Service.Result, any>) => {
+service.interceptors.response.use(async (response: any) => {
   const data = response.data
   const config = response.config as any
   // 外部请求
@@ -45,8 +45,9 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
     return data
   }
   // unLogin tip
-  else if (data.code === 400) {
-    message.error(data.message)
+  else if (data.code === 401) {
+    message.error(data.data)
+    window.location.href = '/#/login'
     return Promise.reject(data)
   }
   else {
@@ -59,6 +60,7 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
     return Promise.reject(err)
   }
   let {data, config} = err.response
+  console.log(refreshing)
   if(refreshing) {
     return new Promise(resolve => {
       queue.push({
@@ -70,29 +72,34 @@ service.interceptors.response.use(async (response: AxiosResponse<Service.Result,
 
   if (data.code === 401 && !config.url.includes('/user/refresh')) {
 
-    refreshing = true;
+      refreshing = true;
 
-    const res: {data: any, code: string, msg: string} = (await refreshToken()) as any;
+      console.log('1')
+      const res: {data: any, code: string, msg: string} = (await refreshToken()) as any;
+      console.log('2')
 
-    refreshing = false;
+      console.log('res::::')
 
-    if(String(res.code) === "000000") {
+      refreshing = false;
 
-        queue.forEach(({config, resolve}) => {
-            resolve(service(config))
-        })
 
-        return service(config);
-    } else {
-        message.error(res.data);
-
-        setTimeout(() => {
-            window.location.href = '/login';
-        }, 1500);
+      if(String(res.code) === "000000") {
+          queue.forEach(({config, resolve}) => {
+              resolve(service(config))
+          })
+          return service(config);
+      } else {
+          message.error(res.data);
+          setTimeout(() => {
+              window.location.href = '/#/login'
+          }, 1500);
+      }
+    }else {
+      console.log('err22', err)
+      message.error(data.data)
     }
-  }else {
-    message.error(data.data)
-  }
+
+
   return Promise.reject(err.response)
 })
 
@@ -136,6 +143,38 @@ const $http = {
   ): Promise<T> {
     try {
       return $http.request('POST', url, { data }, {
+        noUseBaseUrl,
+      })
+    }
+    catch (err) {
+      return Promise.reject(err)
+    }
+  },
+  put<T = any>(
+    {
+      url,
+      data,
+      noUseBaseUrl = false,
+    }: IRequestParamConfig,
+  ): Promise<T> {
+    try {
+      return $http.request('PUT', url, { data }, {
+        noUseBaseUrl,
+      })
+    }
+    catch (err) {
+      return Promise.reject(err)
+    }
+  },
+  delete<T = any>(
+    {
+      url,
+      data,
+      noUseBaseUrl = false,
+    }: IRequestParamConfig,
+  ): Promise<T> {
+    try {
+      return $http.request('DELETE', url, { data }, {
         noUseBaseUrl,
       })
     }
