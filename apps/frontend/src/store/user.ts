@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('USER', () => {
+  const router = useRouter()
   const userInfo = ref<ApiUser.UserInfo | null>()
   const accessToken = ref('')
   const refreshToken = ref('')
@@ -42,6 +43,11 @@ export const useUserStore = defineStore('USER', () => {
     refreshToken.value = ''
   }
 
+  function logout() {
+    resetStore()
+    router.replace('/login')
+  }
+
   return {
     userInfo,
     accessToken,
@@ -55,6 +61,7 @@ export const useUserStore = defineStore('USER', () => {
     setRefreshToken,
     hasRefreshToken,
     resetStore,
+    logout,
   }
 }, {
   persist: true,

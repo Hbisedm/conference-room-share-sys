@@ -189,3 +189,30 @@ declare namespace Booking {
 
 }
 // #endregion
+
+
+// #region 统计管理
+declare namespace Statistics {
+
+  interface StatisticsParams {
+    startTime: string
+    endTime: string
+  }
+
+  interface userBookingResp {
+    username: string
+    id: number
+    bookingCount: string
+  }
+
+  interface meetingRoomUsedResp {
+    usedCount: number
+    meetingRoomName: string
+    meetingRoomId: number
+
+  }
+
+
+}
+
+// #endregion
